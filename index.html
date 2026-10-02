@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive eBook Reader (圖文互動電子書)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- Marked.js (Markdown 解析) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Mammoth.js (Docx 含圖片解析) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <style>
+    /* 閱讀主題 */
+    .theme-dark { background-color: #0f172a; color: #e2e8f0; }
+    .theme-dark .book-page { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
+    
+    .theme-sepia { background-color: #f4ebd9; color: #433422; }
+    .theme-sepia .book-page { background-color: #fbf0d9; color: #2d2319; border-color: #e6d5b8; }
+    
+    .theme-light { background-color: #f1f5f9; color: #0f172a; }
+    .theme-light .book-page { background-color: #ffffff; color: #1e293b; border-color: #e2e8f0; }
+
+    /* 電子書排版與圖片處理 */
+    .prose img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px auto; cursor: pointer; transition: transform 0.2s; }
+    .prose img:hover { transform: scale(1.02); }
+    .prose h1, .prose h2, .prose h3 { font-weight: bold; margin-top: 1.2em; margin-bottom: 0.5em; line-height: 1.3; }
+    .prose h1 { font-size: 1.5rem; border-bottom: 2px solid #f59e0b; padding-bottom: 4px; }
+    .prose h2 { font-size: 1.25rem; }
+    .prose p { margin-bottom: 1em; line-height: 1.7; text-align: justify; }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* 劃線螢光筆顏色 */
+    .hl-yellow { background-color: rgba(250, 204, 21, 0.4); border-radius: 2px; }
+  </style>
+</head>
+<body class="min-h-screen transition-colors duration-300 theme-dark">
+
+<div id="app" class="flex flex-col h-screen overflow-hidden">
+  
+  <!-- 頂部功能導航欄 -->
+  <header class="flex justify-between items-center px-4 py-3 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur z-20">
+    <div class="flex items-center gap-3">
+      <button @click="showSidebar = !showSidebar" class="text-slate-300 hover:text-amber-400 p-1.5 rounded-lg bg-slate-800">
+        📚 <span class="text-xs font-bold hidden sm:inline ml-1">目錄</span>
+      </button>
+      <h1 class="text-sm font-bold truncate max-w-[200px] sm:max-w-md gold-text">
+        {{ currentBookTitle || 'Interactive eBook Reader' }}
+      </h1>
+    </div>
+
+    <!-- 主題與上傳控制 -->
+    <div class="flex items-center gap-2">
+      <!-- 護眼模式選擇 -->
+      <div class="flex bg-slate-800 p-1 rounded-xl text-xs border border-slate-700">
+        <button @click="theme = 'dark'" :class="['px-2 py-1 rounded-lg', theme === 'dark' ? 'bg-slate-700 text-amber-400 font-bold' : 'text-slate-400']">暗黑</button>
+        <button @click="theme = 'sepia'" :class="['px-2 py-1 rounded-lg', theme === 'sepia' ? 'bg-amber-100 text-amber-900 font-bold' : 'text-slate-400']">羊皮紙</button>
+        <button @click="theme = 'light'" :class="['px-2 py-1 rounded-lg', theme === 'light' ? 'bg-white text-slate-900 font-bold' : 'text-slate-400']">純白</button>
+      </div>
+
+      <!-- 上傳按鈕 -->
+      <label class="cursor-pointer bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-lg flex items-center gap-1">
+        <span>📂 載入文件</span>
+        <input type="file" @change="handleFileUpload" accept=".docx, .md, .txt, .html" class="hidden">
+      </label>
+    </div>
+  </header>
+
+  <!-- 主內容閱讀區 -->
+  <div class="flex-1 flex overflow-hidden relative" :class="'theme-' + theme">
+    
+    <!-- 左側動態目錄側邊欄 (TOC Sidebar) -->
+    <div v-if="showSidebar" class="w-64 bg-slate-900/95 border-r border-slate-700/50 p-4 overflow-y-auto z-10 text-xs space-y-3 absolute sm:relative h-full shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+        <span class="font-bold text-slate-300">📖 本書目錄</span>
+        <button @click="showSidebar = false" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      
+      <div v-if="toc.length === 0" class="text-slate-500 text-center py-6">載入文件後將自動解析章節標題</div>
+      
+      <div v-else class="space-y-1">
+        <div v-for="(item, idx) in toc" :key="idx" 
+             @click="jumpToHeading(item.id)"
+             :class="['cursor-pointer py-1.5 px-2 rounded hover:bg-slate-800 transition truncate', 
+                      item.level === 1 ? 'font-bold text-amber-400 pl-2' : 'text-slate-400 pl-5']">
+          {{ item.text }}
+        </div>
+      </div>
+    </div>
+
+    <!-- 中央雙頁/單頁閱讀器 -->
+    <div class="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden relative" @click="handlePageClick">
+      
+      <!-- 歡迎/拖曳上傳提示 -->
+      <div v-if="!contentHtml" class="text-center p-8 border-2 border-dashed border-slate-700 rounded-3xl max-w-md my-auto space-y-4">
+        <div class="text-5xl">📖</div>
+        <h2 class="text-base font-bold text-slate-200">上傳你的圖文講義或筆記</h2>
+        <p class="text-xs text-slate-400">支援包含圖片的 Word (<b>.docx</b>)、Markdown (<b>.md</b>) 或文字檔。</p>
+        <label class="inline-block cursor-pointer bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition">
+          選擇檔案上傳
+          <input type="file" @change="handleFileUpload" accept=".docx, .md, .txt, .html" class="hidden">
+        </label>
+      </div>
+
+      <!-- 圖文書頁區域 (Book Pages) -->
+      <div v-else class="w-full max-w-5xl h-full flex flex-col justify-between">
+        
+        <!-- 書頁排版容器 -->
+        <div class="flex-1 overflow-y-auto no-scrollbar px-2 sm:px-8 py-4 book-page rounded-2xl border shadow-2xl transition-all" id="readerContent">
+          <div class="prose max-w-none" v-html="paginatedContent" @click="detectImageClick"></div>
+        </div>
+
+        <!-- 頁碼與翻頁控制器 -->
+        <div class="flex justify-between items-center pt-3 px-2 text-xs font-bold text-slate-400">
+          <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 disabled:opacity-30">
+            ◀ 上一頁
+          </button>
+          
+          <span>第 {{ currentPage }} / {{ totalPages }} 頁</span>
+
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 disabled:opacity-30">
+            下一頁 ▶
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 圖片點擊放大燈箱 Modal -->
+  <div v-if="activeImage" class="fixed inset-0 bg-black/90 backdrop-blur flex items-center justify-center p-4 z-50" @click="activeImage = null">
+    <div class="relative max-w-4xl max-h-[90vh] overflow-auto">
+      <img :src="activeImage" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl mx-auto">
+      <p class="text-center text-xs text-slate-400 mt-2">點擊任意處關閉高清放大</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted, watch } = Vue;
+
+createApp({
+  setup() {
+    const currentBookTitle = ref('');
+    const contentHtml = ref('');
+    const theme = ref('dark');
+    const showSidebar = ref(false);
+    const currentPage = ref(1);
+    const pageSize = 1200; // 每頁約文字字數
+    const activeImage = ref(null);
+    const toc = ref([]);
+
+    // 鍵盤左右鍵翻頁控制
+    onMounted(() => {
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevPage();
+        if (e.key === 'ArrowRight') nextPage();
+      });
+
+      // 載入上次筆記
+      const savedBook = localStorage.getItem('ebook_last_content');
+      if (savedBook) {
+        const data = JSON.parse(savedBook);
+        contentHtml.value = data.html;
+        currentBookTitle.value = data.title;
+        generateTOC();
+      }
+    });
+
+    // 解析章節標題生成目錄 (TOC)
+    const generateTOC = () => {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = contentHtml.value;
+      const headings = tempDiv.querySelectorAll('h1, h2, h3');
+      
+      let list = [];
+      headings.forEach((h, idx) => {
+        const id = 'heading-' + idx;
+        h.id = id;
+        list.push({
+          id,
+          text: h.innerText,
+          level: parseInt(h.tagName.replace('H', ''))
+        });
+      });
+      toc.value = list;
+    };
+
+    // 處理檔案上傳 (.docx, .md, .txt)
+    const handleFileUpload = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      currentBookTitle.value = file.name;
+      const fileName = file.name.toLowerCase();
+
+      if (fileName.endsWith('.docx')) {
+        // 使用 Mammoth.js 將 Word (含圖片) 轉為網頁 HTML
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          mammoth.convertToHtml({ arrayBuffer: e.target.result })
+            .then(result => {
+              contentHtml.value = result.value;
+              currentPage.value = 1;
+              generateTOC();
+              saveToLocal();
+            });
+        };
+        reader.readAsArrayBuffer(file);
+      } else if (fileName.endsWith('.md')) {
+        // 使用 Marked.js 解析 Markdown
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          contentHtml.value = marked.parse(e.target.result);
+          currentPage.value = 1;
+          generateTOC();
+          saveToLocal();
+        };
+        reader.readAsText(file);
+      } else {
+        // 普通純文字
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          contentHtml.value = `<p>${e.target.result.replace(/\n/g, '</p><p>')}</p>`;
+          currentPage.value = 1;
+          generateTOC();
+          saveToLocal();
+        };
+        reader.readAsText(file);
+      }
+    };
+
+    const saveToLocal = () => {
+      localStorage.setItem('ebook_last_content', JSON.stringify({
+        title: currentBookTitle.value,
+        html: contentHtml.value
+      }));
+    };
+
+    // 計算總頁數
+    const totalPages = computed(() => {
+      if (!contentHtml.value) return 1;
+      return Math.max(1, Math.ceil(contentHtml.value.length / pageSize));
+    });
+
+    // 動態分頁內容
+    const paginatedContent = computed(() => {
+      if (!contentHtml.value) return '';
+      const start = (currentPage.value - 1) * pageSize;
+      const end = currentPage.value * pageSize;
+      return contentHtml.value.substring(start, end);
+    });
+
+    const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+    const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+
+    // 點擊圖片觸發放大燈箱
+    const detectImageClick = (e) => {
+      if (e.target.tagName === 'IMG') {
+        activeImage.value = e.target.src;
+      }
+    };
+
+    // 章節點擊跳轉
+    const jumpToHeading = (id) => {
+      showSidebar.value = false;
+      const idx = toc.value.findIndex(h => h.id === id);
+      if (idx !== -1) {
+        currentPage.value = Math.max(1, Math.floor((idx / toc.value.length) * totalPages.value));
+      }
+    };
+
+    return {
+      currentBookTitle, contentHtml, theme, showSidebar, currentPage, totalPages,
+      paginatedContent, activeImage, toc, handleFileUpload, nextPage, prevPage,
+      detectImageClick, jumpToHeading
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
