@@ -16,7 +16,7 @@
       --lego-green-shadow: #00571C;
       --lego-dark: #222222;
       --plate-color: #009639;
-      --stud-shadow: rgba(0, 0, 0, 0.2);
+      --sky-blue: #40B4FF;
     }
 
     * {
@@ -27,244 +27,252 @@
 
     body {
       margin: 0;
-      padding: 16px;
+      padding: 10px;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       font-family: 'Arial Rounded MT Bold', 'Nunito', 'Segoe UI', sans-serif;
-      /* LEGO Baseplate stud pattern */
-      background-color: var(--plate-color);
-      background-image: 
-        radial-gradient(circle at 50% 50%, #00b043 25%, transparent 26%),
-        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.2) 28%, transparent 29%);
-      background-size: 28px 28px;
+      /* LEGO World: Sky & Grass */
+      background: linear-gradient(to bottom, var(--sky-blue) 0%, var(--sky-blue) 45%, #009639 45%, #008030 100%);
+      background-attachment: fixed;
+    }
+
+    /* Brick clouds & decorative features */
+    body::before {
+      content: '☁️ 🧱 ☁️';
+      position: absolute;
+      top: 15px;
+      left: 10%;
+      font-size: 2rem;
+      opacity: 0.5;
     }
 
     .game-console {
       width: 100%;
-      max-width: 480px;
+      max-width: 600px;
       background: #F4F4F4;
       border-radius: 20px;
       border: 6px solid var(--lego-dark);
       box-shadow: 0 14px 0 rgba(0, 0, 0, 0.35);
-      padding: 24px 20px;
+      padding: 16px;
       position: relative;
     }
 
-    /* LEGO Stud row decoration on top */
-    .stud-row {
+    /* Character Creator Styling */
+    .avatar-maker-box {
+      background: #FFF;
+      border: 3px solid var(--lego-dark);
+      border-radius: 12px;
+      padding: 10px;
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 16px;
-    }
-    .stud {
-      width: 28px;
-      height: 12px;
-      background: var(--lego-yellow);
-      border-radius: 6px 6px 0 0;
-      box-shadow: inset 0 -2px 0 var(--lego-yellow-shadow), 0 -2px 0 var(--lego-dark);
-      border: 3px solid var(--lego-dark);
-      border-bottom: none;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 12px;
     }
 
-    .brick-btn {
-      position: relative;
+    /* SVG Lego Man Customizer */
+    .lego-man {
+      width: 100px;
+      height: 140px;
       display: block;
+    }
+
+    .selector-arrows {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       width: 100%;
-      padding: 14px;
-      font-size: 1.15rem;
+      margin: 3px 0;
+    }
+    .selector-label {
+      font-size: 0.85rem;
       font-weight: 900;
-      color: #FFF;
-      text-align: center;
-      border: 3px solid var(--lego-dark);
-      border-radius: 12px;
+      color: #333;
+    }
+    .sel-btn {
+      background: var(--lego-yellow);
+      border: 2px solid var(--lego-dark);
+      border-radius: 4px;
       cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.08s ease;
-      margin-bottom: 14px;
-      letter-spacing: 0.5px;
-    }
-    .brick-btn:active {
-      transform: translateY(4px);
-    }
-
-    .btn-red {
-      background: var(--lego-red);
-      box-shadow: 0 6px 0 var(--lego-red-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
-    }
-    .btn-red:active {
-      box-shadow: 0 2px 0 var(--lego-red-shadow);
+      font-weight: bold;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .btn-blue {
-      background: var(--lego-blue);
-      box-shadow: 0 6px 0 var(--lego-blue-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
-    }
-    .btn-blue:active {
-      box-shadow: 0 2px 0 var(--lego-blue-shadow);
-    }
-
-    .btn-yellow {
-      background: var(--lego-yellow);
-      color: #222;
-      box-shadow: 0 6px 0 var(--lego-yellow-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
-    }
-    .btn-yellow:active {
-      box-shadow: 0 2px 0 var(--lego-yellow-shadow);
-    }
-
-    .btn-green {
-      background: var(--lego-green);
-      box-shadow: 0 6px 0 var(--lego-green-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
-    }
-    .btn-green:active {
-      box-shadow: 0 2px 0 var(--lego-green-shadow);
-    }
-
-    .screen {
-      display: none;
-    }
-    .screen.active {
-      display: block;
-    }
-
-    .title-banner {
-      background: var(--lego-red);
-      color: #FFF;
-      padding: 12px;
+    /* Landscape and Tables Level Hub */
+    .level-hub {
+      background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 40%, #228B22 40%, #228B22 100%);
+      border: 3px solid var(--lego-dark);
       border-radius: 12px;
-      border: 3px solid var(--lego-dark);
+      padding: 10px;
+      margin-bottom: 15px;
       text-align: center;
-      font-size: 1.5rem;
+      position: relative;
+    }
+
+    /* Level Selection tables */
+    .tables-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    
+    .table-level {
+      background: var(--lego-red);
+      border: 3px solid var(--lego-dark);
+      border-radius: 8px;
+      box-shadow: 0 4px 0 var(--lego-red-shadow);
+      padding: 12px 6px;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 950;
+      cursor: pointer;
+      text-shadow: 1px 1px 0 #000;
+      transition: transform 0.1s ease;
+    }
+    .table-level:active {
+      transform: scale(0.95);
+    }
+    .table-level.t1 { background: var(--lego-blue); box-shadow: 0 4px 0 var(--lego-blue-shadow); }
+    .table-level.t2 { background: var(--lego-yellow); color: #333; text-shadow: none; box-shadow: 0 4px 0 var(--lego-yellow-shadow); }
+    .table-level.t3 { background: var(--lego-green); box-shadow: 0 4px 0 var(--lego-green-shadow); }
+    .table-level.t4 { background: var(--lego-red); box-shadow: 0 4px 0 var(--lego-red-shadow); }
+
+    .table-legs {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+      margin-top: -3px;
+    }
+    .table-leg {
+      width: 6px;
+      height: 8px;
+      background: brown;
+      border: 1px solid var(--lego-dark);
+    }
+
+    /* Vertical Math Box */
+    .vertical-math-card {
+      background: var(--lego-yellow);
+      border: 4px solid var(--lego-dark);
+      border-radius: 16px;
+      box-shadow: 0 8px 0 var(--lego-yellow-shadow);
+      padding: 15px;
+      width: 140px;
+      margin: 0 auto 12px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-size: 2.2rem;
       font-weight: 900;
-      box-shadow: 0 6px 0 var(--lego-red-shadow);
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 0 var(--lego-dark);
+      color: var(--lego-dark);
+      font-family: 'Courier New', monospace;
+      line-height: 1.1;
+      letter-spacing: 2px;
+      position: relative;
     }
 
-    input[type="text"] {
+    .math-operator {
+      position: absolute;
+      left: 14px;
+      bottom: 60px;
+      font-size: 2rem;
+    }
+
+    .math-line {
       width: 100%;
-      padding: 12px 14px;
-      font-size: 1.2rem;
-      border: 3px solid var(--lego-dark);
-      border-radius: 10px;
-      margin-bottom: 18px;
-      text-align: center;
-      font-weight: 800;
-      background: #FFFFFF;
-      outline: none;
+      height: 4px;
+      background-color: var(--lego-dark);
+      margin: 6px 0;
     }
 
-    /* HUD Bar */
+    .math-answer-line {
+      font-size: 2.1rem;
+      min-height: 40px;
+      color: var(--lego-blue);
+      text-align: right;
+    }
+
     .hud {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: #FFFFFF;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 12px;
       border: 3px solid var(--lego-dark);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       font-weight: 900;
-      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
-    }
-    .hearts {
-      font-size: 1.25rem;
-      letter-spacing: 2px;
-    }
-    .score-badge {
-      color: var(--lego-red);
-      font-size: 1.2rem;
     }
 
-    /* Question Display Brick */
-    .math-card {
-      background: var(--lego-yellow);
-      border: 4px solid var(--lego-dark);
-      border-radius: 16px;
-      box-shadow: 0 8px 0 var(--lego-yellow-shadow);
-      padding: 20px;
+    .game-play-area {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* Screen displays */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .title-banner {
+      background: var(--lego-red);
+      color: #FFF;
+      padding: 10px;
+      border-radius: 12px;
+      border: 3px solid var(--lego-dark);
       text-align: center;
-      margin-bottom: 16px;
-    }
-    .question-text {
-      font-size: 2.3rem;
+      font-size: 1.3rem;
       font-weight: 900;
-      color: var(--lego-dark);
-      letter-spacing: 1px;
+      box-shadow: 0 4px 0 var(--lego-red-shadow);
+      margin-bottom: 12px;
+      text-shadow: 2px 2px 0 var(--lego-dark);
     }
 
-    .answer-display {
-      background: #FFF;
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1rem;
       border: 3px solid var(--lego-dark);
       border-radius: 10px;
-      height: 52px;
-      font-size: 1.8rem;
-      font-weight: 900;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 14px;
-      color: var(--lego-blue);
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 800;
     }
 
-    /* Keypad Grid for Lucas to tap easily */
+    /* Control Keypad */
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 6px;
+      width: 100%;
+      max-width: 250px;
     }
     .key {
       padding: 12px 0;
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       font-weight: 900;
       background: #FFFFFF;
       border: 3px solid var(--lego-dark);
-      border-radius: 10px;
-      box-shadow: 0 4px 0 #CCC;
+      border-radius: 8px;
+      box-shadow: 0 3px 0 #CCC;
       cursor: pointer;
       text-align: center;
     }
     .key:active {
-      transform: translateY(3px);
+      transform: translateY(2px);
       box-shadow: 0 1px 0 #CCC;
     }
-    .key-del {
-      background: #FFA0A0;
-      box-shadow: 0 4px 0 #D96969;
-    }
-    .key-ok {
-      background: #6BE585;
-      box-shadow: 0 4px 0 #3AA852;
-    }
+    .key-del { background: #FFA0A0; box-shadow: 0 3px 0 #D96969; }
+    .key-ok { background: #6BE585; box-shadow: 0 3px 0 #3AA852; }
 
-    /* Leaderboard Table */
-    .leaderboard-board {
-      background: #FFF;
-      border: 3px solid var(--lego-dark);
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 14px;
-      max-height: 180px;
-      overflow-y: auto;
-    }
-    .leaderboard-board table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-    .leaderboard-board th {
-      border-bottom: 2px solid var(--lego-dark);
-      padding: 6px;
-      color: var(--lego-blue);
-    }
-    .leaderboard-board td {
-      padding: 6px;
-      font-weight: 700;
-    }
-
+    /* Custom overlay to celebrate Correct or Wrong */
     .feedback-overlay {
       position: absolute;
       top: 40%;
@@ -274,57 +282,121 @@
       font-weight: 900;
       pointer-events: none;
       transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-      z-index: 10;
+      z-index: 100;
       text-shadow: 3px 3px 0 #000;
     }
-    .feedback-correct {
-      color: #2ECC71;
+    .feedback-correct { color: #2ECC71; }
+    .feedback-wrong { color: #E74C3C; }
+    .show-feedback { transform: translate(-50%, -50%) scale(1.2); }
+
+    .leaderboard-board {
+      background: #FFF;
+      border: 3px solid var(--lego-dark);
+      border-radius: 12px;
+      padding: 8px;
+      max-height: 110px;
+      overflow-y: auto;
     }
-    .feedback-wrong {
-      color: #E74C3C;
+    .leaderboard-board table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: center;
     }
-    .show-feedback {
-      transform: translate(-50%, -50%) scale(1.1);
+    .leaderboard-board th { border-bottom: 2px solid var(--lego-dark); color: var(--lego-blue); }
+    .leaderboard-board td { padding: 4px; font-weight: 700; }
+
+    .brick-btn {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      font-weight: 900;
+      color: #FFF;
+      text-align: center;
+      border: 3px solid var(--lego-dark);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.08s;
+      margin-bottom: 10px;
     }
+    .brick-btn:active { transform: translateY(3px); }
+    .btn-green { background: var(--lego-green); box-shadow: 0 4px 0 var(--lego-green-shadow); }
+    .btn-blue { background: var(--lego-blue); box-shadow: 0 4px 0 var(--lego-blue-shadow); }
+
   </style>
 </head>
 <body>
 
   <div class="game-console">
-    <div class="stud-row">
-      <div class="stud"></div>
-      <div class="stud"></div>
-      <div class="stud"></div>
-      <div class="stud"></div>
-      <div class="stud"></div>
-      <div class="stud"></div>
-    </div>
-
     <div id="feedback" class="feedback-overlay"></div>
 
-    <!-- 1. HOME SCREEN -->
+    <!-- 1. HOME & CUSTOMIZATION SCREEN -->
     <div id="screen-home" class="screen active">
-      <div class="title-banner">🧱 LEGO MATH WORLD 🧱</div>
+      <div class="title-banner">🧱 Lucas LEGO Math World 🧱</div>
       
-      <label for="player-name" style="font-weight: 900; color: #444; display:block; margin-bottom: 6px;">請輸入名字 (Player Name):</label>
-      <input type="text" id="player-name" placeholder="Lucas" maxlength="12" value="Lucas">
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 10px; align-items: start; margin-bottom: 10px;">
+        <!-- LEGO Character creator box -->
+        <div class="avatar-maker-box">
+          <div style="font-size: 0.75rem; font-weight: 900; margin-bottom: 2px;">我的角色</div>
+          <svg class="lego-man" viewBox="0 0 100 135" id="lego-svg-character"></svg>
+          
+          <div class="selector-arrows">
+            <button class="sel-btn" onclick="cycleFeature('hair', -1)">&lt;</button>
+            <span class="selector-label">髮型</span>
+            <button class="sel-btn" onclick="cycleFeature('hair', 1)">&gt;</button>
+          </div>
+          <div class="selector-arrows">
+            <button class="sel-btn" onclick="cycleFeature('face', -1)">&lt;</button>
+            <span class="selector-label">表情</span>
+            <button class="sel-btn" onclick="cycleFeature('face', 1)">&gt;</button>
+          </div>
+          <div class="selector-arrows">
+            <button class="sel-btn" onclick="cycleFeature('torso', -1)">&lt;</button>
+            <span class="selector-label">上衣</span>
+            <button class="sel-btn" onclick="cycleFeature('torso', 1)">&gt;</button>
+          </div>
+          <div class="selector-arrows">
+            <button class="sel-btn" onclick="cycleFeature('legs', -1)">&lt;</button>
+            <span class="selector-label">長褲</span>
+            <button class="sel-btn" onclick="cycleFeature('legs', 1)">&gt;</button>
+          </div>
+        </div>
 
-      <div style="font-weight: 900; margin-bottom: 8px; color: #444;">選擇關卡 (Select Level):</div>
-      <button class="brick-btn btn-blue" onclick="startGame(1)">Level 1: 兩位數加減</button>
-      <button class="brick-btn btn-yellow" onclick="startGame(2)">Level 2: 三位數加減</button>
-      <button class="brick-btn btn-green" onclick="startGame(3)">Level 3: 單位數乘法</button>
-      <button class="brick-btn btn-red" onclick="startGame(4)">Level 4: 雙位數乘法</button>
+        <div>
+          <label style="font-weight: 900; color: #444; font-size: 0.85rem;">請輸入名字 (Name):</label>
+          <input type="text" id="player-name" placeholder="Lucas" maxlength="12" value="Lucas">
 
-      <div style="font-weight: 900; margin-top: 18px; color: #444;">🏆 排行榜 (Top Scores)</div>
+          <!-- Table Level selection with interactive look -->
+          <div class="level-hub">
+            <div style="font-weight: 950; color: #fff; text-shadow: 1px 1px 0 #000; font-size: 0.9rem;">🌳 關卡選擇 🌳</div>
+            <div class="tables-container">
+              <div>
+                <div class="table-level t1" onclick="startGame(1)">L1: 雙位數加減</div>
+                <div class="table-legs"><div class="table-leg"></div><div class="table-leg"></div></div>
+              </div>
+              <div>
+                <div class="table-level t2" onclick="startGame(2)">L2: 三位數加減</div>
+                <div class="table-legs"><div class="table-leg"></div><div class="table-leg"></div></div>
+              </div>
+              <div>
+                <div class="table-level t3" onclick="startGame(3)">L3: 單位數乘法</div>
+                <div class="table-legs"><div class="table-leg"></div><div class="table-leg"></div></div>
+              </div>
+              <div>
+                <div class="table-level t4" onclick="startGame(4)">L4: 雙位數乘法</div>
+                <div class="table-legs"><div class="table-leg"></div><div class="table-leg"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="leaderboard-board">
         <table>
           <thead>
-            <tr>
-              <th>排名</th>
-              <th>名字</th>
-              <th>關卡</th>
-              <th>分數</th>
-            </tr>
+            <tr><th>排名</th><th>名字</th><th>關卡</th><th>分數</th></tr>
           </thead>
           <tbody id="leaderboard-body"></tbody>
         </table>
@@ -334,100 +406,172 @@
     <!-- 2. GAME SCREEN -->
     <div id="screen-game" class="screen">
       <div class="hud">
-        <div id="hud-name" style="color: var(--lego-blue);">Lucas</div>
-        <div class="hearts" id="hud-hearts">❤️❤️❤️</div>
-        <div class="score-badge">★ <span id="hud-score">0</span></div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <!-- Custom LEGO Man display in Game UI -->
+          <svg id="lego-game-avatar" style="width: 40px; height: 50px; background: #eee; border: 2px solid var(--lego-dark); border-radius: 6px;" viewBox="0 0 100 135"></svg>
+          <span id="hud-name" style="color: var(--lego-blue); font-weight: bold;">Lucas</span>
+        </div>
+        <div id="hud-level-badge" style="background: var(--lego-yellow); padding: 4px 8px; border-radius: 6px; border: 2px solid var(--lego-dark); font-size: 0.75rem;">Level 1</div>
+        <div id="hud-hearts">❤️❤️❤️</div>
+        <div style="color: var(--lego-red);">★ <span id="hud-score">0</span></div>
       </div>
 
-      <div class="math-card">
-        <div style="font-size: 0.9rem; font-weight: 800; color: #555; margin-bottom: 4px;" id="hud-level-label">Level 1</div>
-        <div class="question-text" id="math-question">-- + -- = ?</div>
-      </div>
+      <div class="game-play-area">
+        <!-- Vertical Math Section -->
+        <div class="vertical-math-card">
+          <div id="math-num1">0</div>
+          <div class="math-operator" id="math-op">+</div>
+          <div id="math-num2">0</div>
+          <div class="math-line"></div>
+          <div class="math-answer-line" id="answer-box">?</div>
+        </div>
 
-      <div class="answer-display" id="answer-box">?</div>
-
-      <!-- Touch Keypad for Kids -->
-      <div class="keypad">
-        <button class="key" onclick="pressNum('1')">1</button>
-        <button class="key" onclick="pressNum('2')">2</button>
-        <button class="key" onclick="pressNum('3')">3</button>
-        <button class="key" onclick="pressNum('4')">4</button>
-        <button class="key" onclick="pressNum('5')">5</button>
-        <button class="key" onclick="pressNum('6')">6</button>
-        <button class="key" onclick="pressNum('7')">7</button>
-        <button class="key" onclick="pressNum('8')">8</button>
-        <button class="key" onclick="pressNum('9')">9</button>
-        <button class="key key-del" onclick="clearInput()">DEL</button>
-        <button class="key" onclick="pressNum('0')">0</button>
-        <button class="key key-ok" onclick="submitAnswer()">OK</button>
+        <!-- Inputs / keypad -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="keypad">
+            <button class="key" onclick="pressNum('1')">1</button>
+            <button class="key" onclick="pressNum('2')">2</button>
+            <button class="key" onclick="pressNum('3')">3</button>
+            <button class="key" onclick="pressNum('4')">4</button>
+            <button class="key" onclick="pressNum('5')">5</button>
+            <button class="key" onclick="pressNum('6')">6</button>
+            <button class="key" onclick="pressNum('7')">7</button>
+            <button class="key" onclick="pressNum('8')">8</button>
+            <button class="key" onclick="pressNum('9')">9</button>
+            <button class="key key-del" onclick="clearInput()">DEL</button>
+            <button class="key" onclick="pressNum('0')">0</button>
+            <button class="key key-ok" onclick="submitAnswer()">OK</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 3. GAME OVER SCREEN -->
     <div id="screen-gameover" class="screen" style="text-align: center;">
-      <div class="title-banner" style="background: var(--lego-dark);">GAME OVER</div>
-      
-      <p style="font-size: 1.2rem; font-weight: 800; color: #444;">Lucas 積木用完啦！</p>
-      
-      <div class="math-card" style="background: #FFF; margin: 20px 0;">
-        <div style="font-size: 1.1rem; color: #666; font-weight: 800;">最終得分 (Final Score)</div>
-        <div style="font-size: 3rem; color: var(--lego-red); font-weight: 900;" id="final-score">0</div>
+      <div class="title-banner" style="background: var(--lego-dark);">GAME OVER 🧱</div>
+      <p style="font-size: 1.2rem; font-weight: 800;">積木用完啦！</p>
+      <div style="background: #FFF; padding: 15px; border-radius: 12px; border: 3px solid var(--lego-dark); width: 180px; margin: 10px auto;">
+        <div style="font-size: 0.9rem; color: #666;">最終得分</div>
+        <div style="font-size: 2.5rem; color: var(--lego-red); font-weight: 900;" id="final-score">0</div>
       </div>
-
       <button class="brick-btn btn-green" onclick="restartLevel()">再玩一次 (Play Again)</button>
       <button class="brick-btn btn-blue" onclick="backToMenu()">返回主選單 (Menu)</button>
     </div>
   </div>
 
   <script>
-    // --- Audio Feedback (Web Audio API: No external files required) ---
+    // Sound FX engine
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
     function playTone(freq, type, duration) {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
       osc.type = type;
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
       gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + duration);
     }
-
     function soundCorrect() {
-      playTone(523.25, 'triangle', 0.12);
-      setTimeout(() => playTone(659.25, 'triangle', 0.12), 100);
-      setTimeout(() => playTone(783.99, 'triangle', 0.25), 200);
+      playTone(523.25, 'triangle', 0.1);
+      setTimeout(() => playTone(659.25, 'triangle', 0.1), 80);
+      setTimeout(() => playTone(783.99, 'triangle', 0.2), 160);
     }
-
     function soundWrong() {
-      playTone(180, 'sawtooth', 0.2);
-      setTimeout(() => playTone(140, 'sawtooth', 0.3), 150);
+      playTone(180, 'sawtooth', 0.15);
+      setTimeout(() => playTone(120, 'sawtooth', 0.2), 120);
     }
 
-    // --- Game Variables ---
-    let playerName = "Lucas";
-    let currentLevel = 1;
-    let score = 0;
-    let hearts = 3;
-    let currentAnswer = null;
-    let typedValue = "";
-
-    const levelNames = {
-      1: "Level 1: 兩位數加減",
-      2: "Level 2: 三位數加減",
-      3: "Level 3: 單位數乘法",
-      4: "Level 4: 雙位數乘法"
+    // Interactive Lego Minifigure Data
+    const featureOptions = {
+      hair: [
+        { name: "Brown Wild", style: "#8B4513", path: '<path d="M25,24 Q50,0 75,24 Q65,12 50,22 Q35,12 25,24" fill="#6A330F" /><rect x="30" y="24" width="40" height="12" fill="#6A330F" rx="3"/>' },
+        { name: "Spiky Black", style: "#000", path: '<path d="M25,24 Q35,8 42,18 Q50,6 58,18 Q65,8 75,24 L73,28 L27,28 Z" fill="#222" />' },
+        { name: "Cap Blue", style: "#0055BF", path: '<path d="M26,24 Q50,5 74,24" fill="#0055BF" stroke="#222" stroke-width="2" /><rect x="23" y="18" width="54" height="6" fill="#0055BF" rx="3"/>' },
+        { name: "Red Hair", style: "#E3000B", path: '<path d="M24,24 Q50,6 76,24 L70,30 Q50,20 30,30 Z" fill="#D32F2F" />' }
+      ],
+      face: [
+        { name: "Happy Classic", markup: '<circle cx="42" cy="38" r="3" fill="#222"/><circle cx="58" cy="38" r="3" fill="#222"/><path d="M44,48 Q50,56 56,48" stroke="#222" stroke-width="3" fill="none" stroke-linecap="round"/>' },
+        { name: "Confident", markup: '<circle cx="42" cy="38" r="2.5" fill="#222"/><circle cx="58" cy="38" r="2.5" fill="#222"/><path d="M38,32 Q42,30 44,33" stroke="#222" stroke-width="2" fill="none"/><path d="M42,48 Q53,52 58,45" stroke="#222" stroke-width="3" fill="none"/>' },
+        { name: "Excited Glasses", markup: '<circle cx="42" cy="38" r="3" fill="#222"/><circle cx="58" cy="38" r="3" fill="#222"/><rect x="34" y="32" width="14" height="10" fill="none" stroke="#E3000B" stroke-width="2" rx="2"/><rect x="52" y="32" width="14" height="10" fill="none" stroke="#E3000B" stroke-width="2" rx="2"/><line x1="48" y1="37" x2="52" y2="37" stroke="#E3000B" stroke-width="2"/><path d="M42,50 Q50,58 58,50" stroke="#222" stroke-width="3.5" fill="none"/>' }
+      ],
+      torso: [
+        { name: "Adventure Red", color: "#E3000B", line: "#FFF", decals: '<rect x="42" y="75" width="16" height="16" fill="#FFA100" rx="2"/><circle cx="50" cy="83" r="3" fill="#000"/>' },
+        { name: "Royal Blue", color: "#0055BF", line: "#FFD500", decals: '<polygon points="50,68 62,90 38,90" fill="#FFD500"/>' },
+        { name: "Forest Green", color: "#00852B", line: "#FFF", decals: '<line x1="50" y1="65" x2="50" y2="92" stroke="#FFF" stroke-width="3"/><rect x="40" y="70" width="8" height="6" fill="#FFA500"/>' }
+      ],
+      legs: [
+        { name: "Blue Jeans", color: "#0055BF" },
+        { name: "Gray Cargo", color: "#666" },
+        { name: "Ranger Green", color: "#00852B" },
+        { name: "Dark Pants", color: "#222" }
+      ]
     };
 
-    // --- Helper Functions ---
-    function getRandomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+    let selectedFeatures = { hair: 0, face: 0, torso: 0, legs: 0 };
+
+    // Draw customized Lego Minifigure SVG dynamic injection
+    function renderLegoCharacter(svgId) {
+      const hair = featureOptions.hair[selectedFeatures.hair];
+      const face = featureOptions.face[selectedFeatures.face];
+      const torso = featureOptions.torso[selectedFeatures.torso];
+      const legs = featureOptions.legs[selectedFeatures.legs];
+
+      const svgContent = `
+        <!-- Yellow Neck Pin -->
+        <rect x="44" y="58" width="12" height="8" fill="#FFD500" stroke="#222" stroke-width="2" />
+        <!-- Lego Yellow Head -->
+        <rect x="34" y="24" width="32" height="36" rx="8" ry="8" fill="#FFD500" stroke="#222" stroke-width="2.5" />
+        <!-- Headstud top -->
+        <rect x="43" y="19" width="14" height="6" fill="#FFD500" stroke="#222" stroke-width="2" />
+        <!-- Eyebrows / Faces -->
+        ${face.markup}
+        <!-- Customizable Hair/Cap Overlay -->
+        ${hair.path}
+        <!-- Hands and Arms -->
+        <path d="M22,68 L15,85 A5,5 0 0,0 22,90 L26,76" fill="${torso.color}" stroke="#222" stroke-width="2" />
+        <path d="M78,68 L85,85 A5,5 0 0,0 78,90 L74,76" fill="${torso.color}" stroke="#222" stroke-width="2" />
+        <circle cx="15" cy="88" r="4.5" fill="#FFD500" stroke="#222" stroke-width="1.5" />
+        <circle cx="85" cy="88" r="4.5" fill="#FFD500" stroke="#222" stroke-width="1.5" />
+        <!-- Torso Body -->
+        <polygon points="28,64 72,64 78,102 22,102" fill="${torso.color}" stroke="#222" stroke-width="2.5" />
+        <!-- Torso detail -->
+        ${torso.decals || ""}
+        <!-- Belt hip -->
+        <rect x="25" y="102" width="50" height="8" fill="#444" stroke="#222" stroke-width="2" />
+        <!-- Leg assembly -->
+        <rect x="25" y="110" width="23" height="24" rx="2" fill="${legs.color}" stroke="#222" stroke-width="2" />
+        <rect x="52" y="110" width="23" height="24" rx="2" fill="${legs.color}" stroke="#222" stroke-width="2" />
+        <!-- Ground Plate Attachment anchor visual lines -->
+        <line x1="25" y1="130" x2="75" y2="130" stroke="#222" stroke-width="2" />
+      `;
+      document.getElementById(svgId).innerHTML = svgContent;
+    }
+
+    function cycleFeature(type, step) {
+      const max = featureOptions[type].length;
+      selectedFeatures[type] = (selectedFeatures[type] + step + max) % max;
+      renderLegoCharacter('lego-svg-character');
+    }
+
+    // --- Variables & Math Engine ---
+    let playerName = "Lucas";
+    let currentLevel = 1;
+    let score = 0, hearts = 3;
+    let currentAnswer = null, typedValue = "";
+
+    function startGame(level) {
+      playerName = document.getElementById('player-name').value.trim() || "Lucas";
+      currentLevel = level;
+      score = 0; hearts = 3; typedValue = "";
+      
+      document.getElementById('hud-name').innerText = playerName;
+      document.getElementById('hud-level-badge').innerText = `Level ${level}`;
+      renderLegoCharacter('lego-game-avatar');
+      
+      updateHUD();
+      generateQuestion();
+      switchScreen('screen-game');
     }
 
     function switchScreen(id) {
@@ -435,113 +579,52 @@
       document.getElementById(id).classList.add('active');
     }
 
-    // --- Leaderboard Management ---
-    function loadLeaderboard() {
-      const records = JSON.parse(localStorage.getItem('lego_math_records') || '[]');
-      const tbody = document.getElementById('leaderboard-body');
-      tbody.innerHTML = '';
-
-      if (records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">尚未有紀錄，快來挑戰！</td></tr>';
-        return;
-      }
-
-      records.forEach((rec, idx) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>#${idx + 1}</td>
-          <td>${rec.name}</td>
-          <td>L${rec.level}</td>
-          <td style="color: var(--lego-red);">${rec.score}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function saveScore(name, lvl, finalScore) {
-      let records = JSON.parse(localStorage.getItem('lego_math_records') || '[]');
-      records.push({ name: name || "Lucas", level: lvl, score: finalScore });
-      records.sort((a, b) => b.score - a.score);
-      records = records.slice(0, 5); // Keep Top 5
-      localStorage.setItem('lego_math_records', JSON.stringify(records));
-      loadLeaderboard();
-    }
-
-    // --- Game Logic ---
-    function startGame(level) {
-      const nameInput = document.getElementById('player-name').value.trim();
-      playerName = nameInput || "Lucas";
-      currentLevel = level;
-      score = 0;
-      hearts = 3;
-      typedValue = "";
-
-      document.getElementById('hud-name').innerText = playerName;
-      document.getElementById('hud-level-label').innerText = levelNames[level];
-      updateHUD();
-      generateQuestion();
-      switchScreen('screen-game');
-    }
-
-    function updateHUD() {
-      document.getElementById('hud-score').innerText = score;
-      let heartStr = "";
-      for (let i = 0; i < 3; i++) {
-        heartStr += (i < hearts) ? "❤️" : "🤍";
-      }
-      document.getElementById('hud-hearts').innerText = heartStr;
-      document.getElementById('answer-box').innerText = typedValue === "" ? "?" : typedValue;
-    }
-
     function generateQuestion() {
       typedValue = "";
-      let qText = "";
+      let num1 = 0, num2 = 0, op = "+";
 
       if (currentLevel === 1) {
-        // 2-digit addition and subtraction (Answers > 0)
-        const isAdd = Math.random() > 0.5;
-        let num1 = getRandomInt(10, 89);
-        let num2 = getRandomInt(10, 89);
-        if (isAdd) {
-          currentAnswer = num1 + num2;
-          qText = `${num1} + ${num2}`;
+        op = Math.random() > 0.5 ? "+" : "-";
+        num1 = getRandomInt(10, 89);
+        num2 = getRandomInt(10, 89);
+        if (op === "-") {
+          let max = Math.max(num1, num2), min = Math.min(num1, num2);
+          num1 = max; num2 = min;
+          currentAnswer = num1 - num2;
         } else {
-          let bigger = Math.max(num1, num2);
-          let smaller = Math.min(num1, num2);
-          currentAnswer = bigger - smaller;
-          qText = `${bigger} - ${smaller}`;
+          currentAnswer = num1 + num2;
         }
       } else if (currentLevel === 2) {
-        // 3-digit addition and subtraction
-        const isAdd = Math.random() > 0.5;
-        let num1 = getRandomInt(100, 899);
-        let num2 = getRandomInt(100, 899);
-        if (isAdd) {
-          currentAnswer = num1 + num2;
-          qText = `${num1} + ${num2}`;
+        op = Math.random() > 0.5 ? "+" : "-";
+        num1 = getRandomInt(100, 899);
+        num2 = getRandomInt(100, 899);
+        if (op === "-") {
+          let max = Math.max(num1, num2), min = Math.min(num1, num2);
+          num1 = max; num2 = min;
+          currentAnswer = num1 - num2;
         } else {
-          let bigger = Math.max(num1, num2);
-          let smaller = Math.min(num1, num2);
-          currentAnswer = bigger - smaller;
-          qText = `${bigger} - ${smaller}`;
+          currentAnswer = num1 + num2;
         }
       } else if (currentLevel === 3) {
-        // 1-digit multiplication
-        let num1 = getRandomInt(2, 9);
-        let num2 = getRandomInt(2, 9);
+        op = "×";
+        num1 = getRandomInt(2, 9);
+        num2 = getRandomInt(2, 9);
         currentAnswer = num1 * num2;
-        qText = `${num1} × ${num2}`;
       } else if (currentLevel === 4) {
-        // 2-digit multiplication (Kid-friendly 2-digit x 1-digit or smaller 2-digit)
-        let num1 = getRandomInt(11, 49);
-        let num2 = getRandomInt(3, 12);
+        op = "×";
+        num1 = getRandomInt(11, 49);
+        num2 = getRandomInt(3, 9);
         currentAnswer = num1 * num2;
-        qText = `${num1} × ${num2}`;
       }
 
-      document.getElementById('math-question').innerText = `${qText} = ?`;
+      document.getElementById('math-num1').innerText = num1;
+      document.getElementById('math-op').innerText = op;
+      document.getElementById('math-num2').innerText = num2;
+      
       updateHUD();
     }
+
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
     function pressNum(digit) {
       if (typedValue.length < 5) {
@@ -555,18 +638,21 @@
       updateHUD();
     }
 
+    function updateHUD() {
+      document.getElementById('hud-score').innerText = score;
+      document.getElementById('hud-hearts').innerText = "❤️".repeat(hearts) + "🤍".repeat(3 - hearts);
+      document.getElementById('answer-box').innerText = typedValue === "" ? "?" : typedValue;
+    }
+
     function showFeedback(isCorrect) {
       const fb = document.getElementById('feedback');
       fb.innerText = isCorrect ? "＋10 🧱" : "💔";
       fb.className = `feedback-overlay show-feedback ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
-      setTimeout(() => {
-        fb.className = 'feedback-overlay';
-      }, 500);
+      setTimeout(() => fb.className = 'feedback-overlay', 600);
     }
 
     function submitAnswer() {
       if (typedValue === "") return;
-
       const userVal = parseInt(typedValue, 10);
       if (userVal === currentAnswer) {
         soundCorrect();
@@ -579,10 +665,7 @@
         showFeedback(false);
         typedValue = "";
         updateHUD();
-
-        if (hearts <= 0) {
-          setTimeout(gameOver, 550);
-        }
+        if (hearts <= 0) setTimeout(gameOver, 550);
       }
     }
 
@@ -592,28 +675,39 @@
       switchScreen('screen-gameover');
     }
 
-    function restartLevel() {
-      startGame(currentLevel);
+    function restartLevel() { startGame(currentLevel); }
+    function backToMenu() { loadLeaderboard(); switchScreen('screen-home'); }
+
+    // Leaderboard utilities
+    function loadLeaderboard() {
+      const records = JSON.parse(localStorage.getItem('lego_math_records') || '[]');
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = records.length === 0 ? '<tr><td colspan="4" style="color:#888;">尚未有紀錄，快來挑戰！</td></tr>' : '';
+      records.forEach((rec, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>#${idx + 1}</td><td>${rec.name}</td><td>L${rec.level}</td><td style="color:var(--lego-red);">${rec.score}</td>`;
+        tbody.appendChild(row);
+      });
     }
 
-    function backToMenu() {
+    function saveScore(name, lvl, finalScore) {
+      let records = JSON.parse(localStorage.getItem('lego_math_records') || '[]');
+      records.push({ name, level: lvl, score: finalScore });
+      records.sort((a, b) => b.score - a.score);
+      localStorage.setItem('lego_math_records', JSON.stringify(records.slice(0, 5)));
       loadLeaderboard();
-      switchScreen('screen-home');
     }
 
     // Physical Keyboard support (Numbers, Backspace, Enter)
     window.addEventListener('keydown', (e) => {
       if (!document.getElementById('screen-game').classList.contains('active')) return;
-      if (e.key >= '0' && e.key <= '9') {
-        pressNum(e.key);
-      } else if (e.key === 'Backspace') {
-        clearInput();
-      } else if (e.key === 'Enter') {
-        submitAnswer();
-      }
+      if (e.key >= '0' && e.key <= '9') pressNum(e.key);
+      else if (e.key === 'Backspace') clearInput();
+      else if (e.key === 'Enter') submitAnswer();
     });
 
-    // Initialize leaderboard on startup
+    // Start rendering
+    renderLegoCharacter('lego-svg-character');
     loadLeaderboard();
   </script>
 </body>
