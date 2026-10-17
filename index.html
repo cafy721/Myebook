@@ -1,284 +1,621 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive eBook Reader (圖文互動電子書)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <!-- Marked.js (Markdown 解析) -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <!-- Mammoth.js (Docx 含圖片解析) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <title>Lucas LEGO Math Adventure</title>
   <style>
-    /* 閱讀主題 */
-    .theme-dark { background-color: #0f172a; color: #e2e8f0; }
-    .theme-dark .book-page { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
-    
-    .theme-sepia { background-color: #f4ebd9; color: #433422; }
-    .theme-sepia .book-page { background-color: #fbf0d9; color: #2d2319; border-color: #e6d5b8; }
-    
-    .theme-light { background-color: #f1f5f9; color: #0f172a; }
-    .theme-light .book-page { background-color: #ffffff; color: #1e293b; border-color: #e2e8f0; }
+    :root {
+      --lego-red: #E3000B;
+      --lego-red-shadow: #A80008;
+      --lego-yellow: #FFD500;
+      --lego-yellow-shadow: #C7A600;
+      --lego-blue: #0055BF;
+      --lego-blue-shadow: #003B85;
+      --lego-green: #00852B;
+      --lego-green-shadow: #00571C;
+      --lego-dark: #222222;
+      --plate-color: #009639;
+      --stud-shadow: rgba(0, 0, 0, 0.2);
+    }
 
-    /* 電子書排版與圖片處理 */
-    .prose img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px auto; cursor: pointer; transition: transform 0.2s; }
-    .prose img:hover { transform: scale(1.02); }
-    .prose h1, .prose h2, .prose h3 { font-weight: bold; margin-top: 1.2em; margin-bottom: 0.5em; line-height: 1.3; }
-    .prose h1 { font-size: 1.5rem; border-bottom: 2px solid #f59e0b; padding-bottom: 4px; }
-    .prose h2 { font-size: 1.25rem; }
-    .prose p { margin-bottom: 1em; line-height: 1.7; text-align: justify; }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    /* 劃線螢光筆顏色 */
-    .hl-yellow { background-color: rgba(250, 204, 21, 0.4); border-radius: 2px; }
+    body {
+      margin: 0;
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Arial Rounded MT Bold', 'Nunito', 'Segoe UI', sans-serif;
+      /* LEGO Baseplate stud pattern */
+      background-color: var(--plate-color);
+      background-image: 
+        radial-gradient(circle at 50% 50%, #00b043 25%, transparent 26%),
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.2) 28%, transparent 29%);
+      background-size: 28px 28px;
+    }
+
+    .game-console {
+      width: 100%;
+      max-width: 480px;
+      background: #F4F4F4;
+      border-radius: 20px;
+      border: 6px solid var(--lego-dark);
+      box-shadow: 0 14px 0 rgba(0, 0, 0, 0.35);
+      padding: 24px 20px;
+      position: relative;
+    }
+
+    /* LEGO Stud row decoration on top */
+    .stud-row {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
+    }
+    .stud {
+      width: 28px;
+      height: 12px;
+      background: var(--lego-yellow);
+      border-radius: 6px 6px 0 0;
+      box-shadow: inset 0 -2px 0 var(--lego-yellow-shadow), 0 -2px 0 var(--lego-dark);
+      border: 3px solid var(--lego-dark);
+      border-bottom: none;
+    }
+
+    .brick-btn {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 14px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #FFF;
+      text-align: center;
+      border: 3px solid var(--lego-dark);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+    .brick-btn:active {
+      transform: translateY(4px);
+    }
+
+    .btn-red {
+      background: var(--lego-red);
+      box-shadow: 0 6px 0 var(--lego-red-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
+    }
+    .btn-red:active {
+      box-shadow: 0 2px 0 var(--lego-red-shadow);
+    }
+
+    .btn-blue {
+      background: var(--lego-blue);
+      box-shadow: 0 6px 0 var(--lego-blue-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
+    }
+    .btn-blue:active {
+      box-shadow: 0 2px 0 var(--lego-blue-shadow);
+    }
+
+    .btn-yellow {
+      background: var(--lego-yellow);
+      color: #222;
+      box-shadow: 0 6px 0 var(--lego-yellow-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
+    }
+    .btn-yellow:active {
+      box-shadow: 0 2px 0 var(--lego-yellow-shadow);
+    }
+
+    .btn-green {
+      background: var(--lego-green);
+      box-shadow: 0 6px 0 var(--lego-green-shadow), 0 8px 10px rgba(0, 0, 0, 0.2);
+    }
+    .btn-green:active {
+      box-shadow: 0 2px 0 var(--lego-green-shadow);
+    }
+
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    .title-banner {
+      background: var(--lego-red);
+      color: #FFF;
+      padding: 12px;
+      border-radius: 12px;
+      border: 3px solid var(--lego-dark);
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 900;
+      box-shadow: 0 6px 0 var(--lego-red-shadow);
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 0 var(--lego-dark);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1.2rem;
+      border: 3px solid var(--lego-dark);
+      border-radius: 10px;
+      margin-bottom: 18px;
+      text-align: center;
+      font-weight: 800;
+      background: #FFFFFF;
+      outline: none;
+    }
+
+    /* HUD Bar */
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFFFF;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 3px solid var(--lego-dark);
+      margin-bottom: 16px;
+      font-weight: 900;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+    }
+    .hearts {
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+    }
+    .score-badge {
+      color: var(--lego-red);
+      font-size: 1.2rem;
+    }
+
+    /* Question Display Brick */
+    .math-card {
+      background: var(--lego-yellow);
+      border: 4px solid var(--lego-dark);
+      border-radius: 16px;
+      box-shadow: 0 8px 0 var(--lego-yellow-shadow);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .question-text {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: var(--lego-dark);
+      letter-spacing: 1px;
+    }
+
+    .answer-display {
+      background: #FFF;
+      border: 3px solid var(--lego-dark);
+      border-radius: 10px;
+      height: 52px;
+      font-size: 1.8rem;
+      font-weight: 900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 14px;
+      color: var(--lego-blue);
+    }
+
+    /* Keypad Grid for Lucas to tap easily */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .key {
+      padding: 12px 0;
+      font-size: 1.35rem;
+      font-weight: 900;
+      background: #FFFFFF;
+      border: 3px solid var(--lego-dark);
+      border-radius: 10px;
+      box-shadow: 0 4px 0 #CCC;
+      cursor: pointer;
+      text-align: center;
+    }
+    .key:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #CCC;
+    }
+    .key-del {
+      background: #FFA0A0;
+      box-shadow: 0 4px 0 #D96969;
+    }
+    .key-ok {
+      background: #6BE585;
+      box-shadow: 0 4px 0 #3AA852;
+    }
+
+    /* Leaderboard Table */
+    .leaderboard-board {
+      background: #FFF;
+      border: 3px solid var(--lego-dark);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 14px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .leaderboard-board table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .leaderboard-board th {
+      border-bottom: 2px solid var(--lego-dark);
+      padding: 6px;
+      color: var(--lego-blue);
+    }
+    .leaderboard-board td {
+      padding: 6px;
+      font-weight: 700;
+    }
+
+    .feedback-overlay {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 3.5rem;
+      font-weight: 900;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 10;
+      text-shadow: 3px 3px 0 #000;
+    }
+    .feedback-correct {
+      color: #2ECC71;
+    }
+    .feedback-wrong {
+      color: #E74C3C;
+    }
+    .show-feedback {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
   </style>
 </head>
-<body class="min-h-screen transition-colors duration-300 theme-dark">
+<body>
 
-<div id="app" class="flex flex-col h-screen overflow-hidden">
-  
-  <!-- 頂部功能導航欄 -->
-  <header class="flex justify-between items-center px-4 py-3 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur z-20">
-    <div class="flex items-center gap-3">
-      <button @click="showSidebar = !showSidebar" class="text-slate-300 hover:text-amber-400 p-1.5 rounded-lg bg-slate-800">
-        📚 <span class="text-xs font-bold hidden sm:inline ml-1">目錄</span>
-      </button>
-      <h1 class="text-sm font-bold truncate max-w-[200px] sm:max-w-md gold-text">
-        {{ currentBookTitle || 'Interactive eBook Reader' }}
-      </h1>
+  <div class="game-console">
+    <div class="stud-row">
+      <div class="stud"></div>
+      <div class="stud"></div>
+      <div class="stud"></div>
+      <div class="stud"></div>
+      <div class="stud"></div>
+      <div class="stud"></div>
     </div>
 
-    <!-- 主題與上傳控制 -->
-    <div class="flex items-center gap-2">
-      <!-- 護眼模式選擇 -->
-      <div class="flex bg-slate-800 p-1 rounded-xl text-xs border border-slate-700">
-        <button @click="theme = 'dark'" :class="['px-2 py-1 rounded-lg', theme === 'dark' ? 'bg-slate-700 text-amber-400 font-bold' : 'text-slate-400']">暗黑</button>
-        <button @click="theme = 'sepia'" :class="['px-2 py-1 rounded-lg', theme === 'sepia' ? 'bg-amber-100 text-amber-900 font-bold' : 'text-slate-400']">羊皮紙</button>
-        <button @click="theme = 'light'" :class="['px-2 py-1 rounded-lg', theme === 'light' ? 'bg-white text-slate-900 font-bold' : 'text-slate-400']">純白</button>
-      </div>
+    <div id="feedback" class="feedback-overlay"></div>
 
-      <!-- 上傳按鈕 -->
-      <label class="cursor-pointer bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-lg flex items-center gap-1">
-        <span>📂 載入文件</span>
-        <input type="file" @change="handleFileUpload" accept=".docx, .md, .txt, .html" class="hidden">
-      </label>
-    </div>
-  </header>
+    <!-- 1. HOME SCREEN -->
+    <div id="screen-home" class="screen active">
+      <div class="title-banner">🧱 LEGO MATH WORLD 🧱</div>
+      
+      <label for="player-name" style="font-weight: 900; color: #444; display:block; margin-bottom: 6px;">請輸入名字 (Player Name):</label>
+      <input type="text" id="player-name" placeholder="Lucas" maxlength="12" value="Lucas">
 
-  <!-- 主內容閱讀區 -->
-  <div class="flex-1 flex overflow-hidden relative" :class="'theme-' + theme">
-    
-    <!-- 左側動態目錄側邊欄 (TOC Sidebar) -->
-    <div v-if="showSidebar" class="w-64 bg-slate-900/95 border-r border-slate-700/50 p-4 overflow-y-auto z-10 text-xs space-y-3 absolute sm:relative h-full shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-        <span class="font-bold text-slate-300">📖 本書目錄</span>
-        <button @click="showSidebar = false" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      
-      <div v-if="toc.length === 0" class="text-slate-500 text-center py-6">載入文件後將自動解析章節標題</div>
-      
-      <div v-else class="space-y-1">
-        <div v-for="(item, idx) in toc" :key="idx" 
-             @click="jumpToHeading(item.id)"
-             :class="['cursor-pointer py-1.5 px-2 rounded hover:bg-slate-800 transition truncate', 
-                      item.level === 1 ? 'font-bold text-amber-400 pl-2' : 'text-slate-400 pl-5']">
-          {{ item.text }}
-        </div>
+      <div style="font-weight: 900; margin-bottom: 8px; color: #444;">選擇關卡 (Select Level):</div>
+      <button class="brick-btn btn-blue" onclick="startGame(1)">Level 1: 兩位數加減</button>
+      <button class="brick-btn btn-yellow" onclick="startGame(2)">Level 2: 三位數加減</button>
+      <button class="brick-btn btn-green" onclick="startGame(3)">Level 3: 單位數乘法</button>
+      <button class="brick-btn btn-red" onclick="startGame(4)">Level 4: 雙位數乘法</button>
+
+      <div style="font-weight: 900; margin-top: 18px; color: #444;">🏆 排行榜 (Top Scores)</div>
+      <div class="leaderboard-board">
+        <table>
+          <thead>
+            <tr>
+              <th>排名</th>
+              <th>名字</th>
+              <th>關卡</th>
+              <th>分數</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- 中央雙頁/單頁閱讀器 -->
-    <div class="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden relative" @click="handlePageClick">
+    <!-- 2. GAME SCREEN -->
+    <div id="screen-game" class="screen">
+      <div class="hud">
+        <div id="hud-name" style="color: var(--lego-blue);">Lucas</div>
+        <div class="hearts" id="hud-hearts">❤️❤️❤️</div>
+        <div class="score-badge">★ <span id="hud-score">0</span></div>
+      </div>
+
+      <div class="math-card">
+        <div style="font-size: 0.9rem; font-weight: 800; color: #555; margin-bottom: 4px;" id="hud-level-label">Level 1</div>
+        <div class="question-text" id="math-question">-- + -- = ?</div>
+      </div>
+
+      <div class="answer-display" id="answer-box">?</div>
+
+      <!-- Touch Keypad for Kids -->
+      <div class="keypad">
+        <button class="key" onclick="pressNum('1')">1</button>
+        <button class="key" onclick="pressNum('2')">2</button>
+        <button class="key" onclick="pressNum('3')">3</button>
+        <button class="key" onclick="pressNum('4')">4</button>
+        <button class="key" onclick="pressNum('5')">5</button>
+        <button class="key" onclick="pressNum('6')">6</button>
+        <button class="key" onclick="pressNum('7')">7</button>
+        <button class="key" onclick="pressNum('8')">8</button>
+        <button class="key" onclick="pressNum('9')">9</button>
+        <button class="key key-del" onclick="clearInput()">DEL</button>
+        <button class="key" onclick="pressNum('0')">0</button>
+        <button class="key key-ok" onclick="submitAnswer()">OK</button>
+      </div>
+    </div>
+
+    <!-- 3. GAME OVER SCREEN -->
+    <div id="screen-gameover" class="screen" style="text-align: center;">
+      <div class="title-banner" style="background: var(--lego-dark);">GAME OVER</div>
       
-      <!-- 歡迎/拖曳上傳提示 -->
-      <div v-if="!contentHtml" class="text-center p-8 border-2 border-dashed border-slate-700 rounded-3xl max-w-md my-auto space-y-4">
-        <div class="text-5xl">📖</div>
-        <h2 class="text-base font-bold text-slate-200">上傳你的圖文講義或筆記</h2>
-        <p class="text-xs text-slate-400">支援包含圖片的 Word (<b>.docx</b>)、Markdown (<b>.md</b>) 或文字檔。</p>
-        <label class="inline-block cursor-pointer bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition">
-          選擇檔案上傳
-          <input type="file" @change="handleFileUpload" accept=".docx, .md, .txt, .html" class="hidden">
-        </label>
+      <p style="font-size: 1.2rem; font-weight: 800; color: #444;">Lucas 積木用完啦！</p>
+      
+      <div class="math-card" style="background: #FFF; margin: 20px 0;">
+        <div style="font-size: 1.1rem; color: #666; font-weight: 800;">最終得分 (Final Score)</div>
+        <div style="font-size: 3rem; color: var(--lego-red); font-weight: 900;" id="final-score">0</div>
       </div>
 
-      <!-- 圖文書頁區域 (Book Pages) -->
-      <div v-else class="w-full max-w-5xl h-full flex flex-col justify-between">
-        
-        <!-- 書頁排版容器 -->
-        <div class="flex-1 overflow-y-auto no-scrollbar px-2 sm:px-8 py-4 book-page rounded-2xl border shadow-2xl transition-all" id="readerContent">
-          <div class="prose max-w-none" v-html="paginatedContent" @click="detectImageClick"></div>
-        </div>
-
-        <!-- 頁碼與翻頁控制器 -->
-        <div class="flex justify-between items-center pt-3 px-2 text-xs font-bold text-slate-400">
-          <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 disabled:opacity-30">
-            ◀ 上一頁
-          </button>
-          
-          <span>第 {{ currentPage }} / {{ totalPages }} 頁</span>
-
-          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 disabled:opacity-30">
-            下一頁 ▶
-          </button>
-        </div>
-      </div>
+      <button class="brick-btn btn-green" onclick="restartLevel()">再玩一次 (Play Again)</button>
+      <button class="brick-btn btn-blue" onclick="backToMenu()">返回主選單 (Menu)</button>
     </div>
   </div>
 
-  <!-- 圖片點擊放大燈箱 Modal -->
-  <div v-if="activeImage" class="fixed inset-0 bg-black/90 backdrop-blur flex items-center justify-center p-4 z-50" @click="activeImage = null">
-    <div class="relative max-w-4xl max-h-[90vh] overflow-auto">
-      <img :src="activeImage" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl mx-auto">
-      <p class="text-center text-xs text-slate-400 mt-2">點擊任意處關閉高清放大</p>
-    </div>
-  </div>
+  <script>
+    // --- Audio Feedback (Web Audio API: No external files required) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-</div>
-
-<script>
-const { createApp, ref, computed, onMounted, watch } = Vue;
-
-createApp({
-  setup() {
-    const currentBookTitle = ref('');
-    const contentHtml = ref('');
-    const theme = ref('dark');
-    const showSidebar = ref(false);
-    const currentPage = ref(1);
-    const pageSize = 1200; // 每頁約文字字數
-    const activeImage = ref(null);
-    const toc = ref([]);
-
-    // 鍵盤左右鍵翻頁控制
-    onMounted(() => {
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') prevPage();
-        if (e.key === 'ArrowRight') nextPage();
-      });
-
-      // 載入上次筆記
-      const savedBook = localStorage.getItem('ebook_last_content');
-      if (savedBook) {
-        const data = JSON.parse(savedBook);
-        contentHtml.value = data.html;
-        currentBookTitle.value = data.title;
-        generateTOC();
+    function playTone(freq, type, duration) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
       }
-    });
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
 
-    // 解析章節標題生成目錄 (TOC)
-    const generateTOC = () => {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = contentHtml.value;
-      const headings = tempDiv.querySelectorAll('h1, h2, h3');
-      
-      let list = [];
-      headings.forEach((h, idx) => {
-        const id = 'heading-' + idx;
-        h.id = id;
-        list.push({
-          id,
-          text: h.innerText,
-          level: parseInt(h.tagName.replace('H', ''))
-        });
-      });
-      toc.value = list;
+    function soundCorrect() {
+      playTone(523.25, 'triangle', 0.12);
+      setTimeout(() => playTone(659.25, 'triangle', 0.12), 100);
+      setTimeout(() => playTone(783.99, 'triangle', 0.25), 200);
+    }
+
+    function soundWrong() {
+      playTone(180, 'sawtooth', 0.2);
+      setTimeout(() => playTone(140, 'sawtooth', 0.3), 150);
+    }
+
+    // --- Game Variables ---
+    let playerName = "Lucas";
+    let currentLevel = 1;
+    let score = 0;
+    let hearts = 3;
+    let currentAnswer = null;
+    let typedValue = "";
+
+    const levelNames = {
+      1: "Level 1: 兩位數加減",
+      2: "Level 2: 三位數加減",
+      3: "Level 3: 單位數乘法",
+      4: "Level 4: 雙位數乘法"
     };
 
-    // 處理檔案上傳 (.docx, .md, .txt)
-    const handleFileUpload = (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
+    // --- Helper Functions ---
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-      currentBookTitle.value = file.name;
-      const fileName = file.name.toLowerCase();
+    function switchScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
 
-      if (fileName.endsWith('.docx')) {
-        // 使用 Mammoth.js 將 Word (含圖片) 轉為網頁 HTML
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          mammoth.convertToHtml({ arrayBuffer: e.target.result })
-            .then(result => {
-              contentHtml.value = result.value;
-              currentPage.value = 1;
-              generateTOC();
-              saveToLocal();
-            });
-        };
-        reader.readAsArrayBuffer(file);
-      } else if (fileName.endsWith('.md')) {
-        // 使用 Marked.js 解析 Markdown
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          contentHtml.value = marked.parse(e.target.result);
-          currentPage.value = 1;
-          generateTOC();
-          saveToLocal();
-        };
-        reader.readAsText(file);
+    // --- Leaderboard Management ---
+    function loadLeaderboard() {
+      const records = JSON.parse(localStorage.getItem('lego_math_records') || '[]');
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">尚未有紀錄，快來挑戰！</td></tr>';
+        return;
+      }
+
+      records.forEach((rec, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>#${idx + 1}</td>
+          <td>${rec.name}</td>
+          <td>L${rec.level}</td>
+          <td style="color: var(--lego-red);">${rec.score}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function saveScore(name, lvl, finalScore) {
+      let records = JSON.parse(localStorage.getItem('lego_math_records') || '[]');
+      records.push({ name: name || "Lucas", level: lvl, score: finalScore });
+      records.sort((a, b) => b.score - a.score);
+      records = records.slice(0, 5); // Keep Top 5
+      localStorage.setItem('lego_math_records', JSON.stringify(records));
+      loadLeaderboard();
+    }
+
+    // --- Game Logic ---
+    function startGame(level) {
+      const nameInput = document.getElementById('player-name').value.trim();
+      playerName = nameInput || "Lucas";
+      currentLevel = level;
+      score = 0;
+      hearts = 3;
+      typedValue = "";
+
+      document.getElementById('hud-name').innerText = playerName;
+      document.getElementById('hud-level-label').innerText = levelNames[level];
+      updateHUD();
+      generateQuestion();
+      switchScreen('screen-game');
+    }
+
+    function updateHUD() {
+      document.getElementById('hud-score').innerText = score;
+      let heartStr = "";
+      for (let i = 0; i < 3; i++) {
+        heartStr += (i < hearts) ? "❤️" : "🤍";
+      }
+      document.getElementById('hud-hearts').innerText = heartStr;
+      document.getElementById('answer-box').innerText = typedValue === "" ? "?" : typedValue;
+    }
+
+    function generateQuestion() {
+      typedValue = "";
+      let qText = "";
+
+      if (currentLevel === 1) {
+        // 2-digit addition and subtraction (Answers > 0)
+        const isAdd = Math.random() > 0.5;
+        let num1 = getRandomInt(10, 89);
+        let num2 = getRandomInt(10, 89);
+        if (isAdd) {
+          currentAnswer = num1 + num2;
+          qText = `${num1} + ${num2}`;
+        } else {
+          let bigger = Math.max(num1, num2);
+          let smaller = Math.min(num1, num2);
+          currentAnswer = bigger - smaller;
+          qText = `${bigger} - ${smaller}`;
+        }
+      } else if (currentLevel === 2) {
+        // 3-digit addition and subtraction
+        const isAdd = Math.random() > 0.5;
+        let num1 = getRandomInt(100, 899);
+        let num2 = getRandomInt(100, 899);
+        if (isAdd) {
+          currentAnswer = num1 + num2;
+          qText = `${num1} + ${num2}`;
+        } else {
+          let bigger = Math.max(num1, num2);
+          let smaller = Math.min(num1, num2);
+          currentAnswer = bigger - smaller;
+          qText = `${bigger} - ${smaller}`;
+        }
+      } else if (currentLevel === 3) {
+        // 1-digit multiplication
+        let num1 = getRandomInt(2, 9);
+        let num2 = getRandomInt(2, 9);
+        currentAnswer = num1 * num2;
+        qText = `${num1} × ${num2}`;
+      } else if (currentLevel === 4) {
+        // 2-digit multiplication (Kid-friendly 2-digit x 1-digit or smaller 2-digit)
+        let num1 = getRandomInt(11, 49);
+        let num2 = getRandomInt(3, 12);
+        currentAnswer = num1 * num2;
+        qText = `${num1} × ${num2}`;
+      }
+
+      document.getElementById('math-question').innerText = `${qText} = ?`;
+      updateHUD();
+    }
+
+    function pressNum(digit) {
+      if (typedValue.length < 5) {
+        typedValue += digit;
+        updateHUD();
+      }
+    }
+
+    function clearInput() {
+      typedValue = typedValue.slice(0, -1);
+      updateHUD();
+    }
+
+    function showFeedback(isCorrect) {
+      const fb = document.getElementById('feedback');
+      fb.innerText = isCorrect ? "＋10 🧱" : "💔";
+      fb.className = `feedback-overlay show-feedback ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+      setTimeout(() => {
+        fb.className = 'feedback-overlay';
+      }, 500);
+    }
+
+    function submitAnswer() {
+      if (typedValue === "") return;
+
+      const userVal = parseInt(typedValue, 10);
+      if (userVal === currentAnswer) {
+        soundCorrect();
+        score += 10;
+        showFeedback(true);
+        generateQuestion();
       } else {
-        // 普通純文字
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          contentHtml.value = `<p>${e.target.result.replace(/\n/g, '</p><p>')}</p>`;
-          currentPage.value = 1;
-          generateTOC();
-          saveToLocal();
-        };
-        reader.readAsText(file);
+        soundWrong();
+        hearts -= 1;
+        showFeedback(false);
+        typedValue = "";
+        updateHUD();
+
+        if (hearts <= 0) {
+          setTimeout(gameOver, 550);
+        }
       }
-    };
+    }
 
-    const saveToLocal = () => {
-      localStorage.setItem('ebook_last_content', JSON.stringify({
-        title: currentBookTitle.value,
-        html: contentHtml.value
-      }));
-    };
+    function gameOver() {
+      saveScore(playerName, currentLevel, score);
+      document.getElementById('final-score').innerText = score;
+      switchScreen('screen-gameover');
+    }
 
-    // 計算總頁數
-    const totalPages = computed(() => {
-      if (!contentHtml.value) return 1;
-      return Math.max(1, Math.ceil(contentHtml.value.length / pageSize));
+    function restartLevel() {
+      startGame(currentLevel);
+    }
+
+    function backToMenu() {
+      loadLeaderboard();
+      switchScreen('screen-home');
+    }
+
+    // Physical Keyboard support (Numbers, Backspace, Enter)
+    window.addEventListener('keydown', (e) => {
+      if (!document.getElementById('screen-game').classList.contains('active')) return;
+      if (e.key >= '0' && e.key <= '9') {
+        pressNum(e.key);
+      } else if (e.key === 'Backspace') {
+        clearInput();
+      } else if (e.key === 'Enter') {
+        submitAnswer();
+      }
     });
 
-    // 動態分頁內容
-    const paginatedContent = computed(() => {
-      if (!contentHtml.value) return '';
-      const start = (currentPage.value - 1) * pageSize;
-      const end = currentPage.value * pageSize;
-      return contentHtml.value.substring(start, end);
-    });
-
-    const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
-    const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
-
-    // 點擊圖片觸發放大燈箱
-    const detectImageClick = (e) => {
-      if (e.target.tagName === 'IMG') {
-        activeImage.value = e.target.src;
-      }
-    };
-
-    // 章節點擊跳轉
-    const jumpToHeading = (id) => {
-      showSidebar.value = false;
-      const idx = toc.value.findIndex(h => h.id === id);
-      if (idx !== -1) {
-        currentPage.value = Math.max(1, Math.floor((idx / toc.value.length) * totalPages.value));
-      }
-    };
-
-    return {
-      currentBookTitle, contentHtml, theme, showSidebar, currentPage, totalPages,
-      paginatedContent, activeImage, toc, handleFileUpload, nextPage, prevPage,
-      detectImageClick, jumpToHeading
-    };
-  }
-}).mount('#app');
-</script>
+    // Initialize leaderboard on startup
+    loadLeaderboard();
+  </script>
 </body>
 </html>
+
